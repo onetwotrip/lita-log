@@ -11,7 +11,7 @@ class ES
 
     def index_name
       # to get current es index name
-      'logstash-' + (Time.now.strftime '%Y.%m.%d')
+      'lita-' + (Time.now.strftime '%Y.%m.%d')
     end
 
     def put(msg, tags)
