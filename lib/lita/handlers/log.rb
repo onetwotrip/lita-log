@@ -84,38 +84,22 @@ module Lita
         save_ops_log(timestamp: Time.now.to_i, user: response.user.name, msg: msg)
       end
 
-      # def add_log(response)
-      #   msg = response.message.body.split(' Finished deploying ')
-      #   user = msg.first
-      #   params = msg.last.split(' ')
-      #   if params.first =~ /webfront/
-      #     project = params.first + ' ' + params[1]
-      #     commit = params[2]
-      #   else
-      #     project = params.first
-      #     commit = params[1]
-      #   end
-      #   env = params.last.chop!
-      #   save_env(env, msg: msg,
-      #            environment: env, timestamp: Time.now.to_i,
-      #            user: user, project: project, commit: commit)
-      # end
-
       def add_log(response)
+
         full_msg = response.message.body
         user     = ''
         commit   = ''
         env      = ''
         proj     = ''
-        # full_msg.each_line do |line|
-        #   user = user if /.*by\s(?<user>\S+)/ =~ line
-        # end
+
         if /by\s+(?<user>\S+)\s+Stage:\s+(?<env>\S+)\s+Projects:\s+(?<proj>\S+)\s+Branch:\s+(?<commit>\S+)/ =~ full_msg
+
           user.delete!('*')
           commit.delete!('*').delete!('[').delete!(']')
           env.delete!('*')
           proj.delete!('*').delete!('[').delete!(']').downcase
           msg = "#{user}, #{proj} (#{commit}) to #{env}"
+
           save_env(env, msg: msg,
                    environment: env, timestamp: Time.now.to_i,
                    user: user, project: proj, commit: commit)
