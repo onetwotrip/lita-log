@@ -114,7 +114,7 @@ module Lita
           user.delete!('*')
           commit.delete!('*').delete!('[').delete!(']')
           env.delete!('*')
-          proj.delete!('*').delete!('[').delete!(']')
+          proj.delete!('*').delete!('[').delete!(']').downcase
           msg = "#{user}, #{proj} (#{commit}) to #{env}"
           save_env(env, msg: msg,
                    environment: env, timestamp: Time.now.to_i,
