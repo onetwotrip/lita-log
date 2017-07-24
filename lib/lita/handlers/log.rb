@@ -87,27 +87,27 @@ module Lita
       def add_log(response)
 
         full_msg = response.message.body
-        user     = ''
-        commit   = ''
-        env      = ''
-        proj     = ''
+        user     = 'null'
+        commit   = 'null'
+        env      = 'null'
+        proj     = 'null'
 
         if /by\s+(?<user>\S+)\s+Stage:\s+(?<env>\S+)\s+Projects:\s+(?<proj>\S+)\s+Branch:\s+(?<commit>\S+)/ =~ full_msg
 
           user.delete!('*')
           commit.delete!('*').delete!('[').delete!(']')
           env.delete!('*')
-          proj.delete!('*').delete!('[').delete!(']').downcase
-          msg = "#{user}, #{proj} (#{commit}) to #{env}"
+          proj.strip!.delete!('*').delete!('[').delete!(']').downcase
 
-          save_env(env, msg: msg,
-                   environment: env, timestamp: Time.now.to_i,
-                   user: user, project: proj, commit: commit)
+          msg = "#{user}, #{proj} (#{commit}) to #{env}"
         else
-          save_env(env, msg: full_msg,
-                   environment: 'null', timestamp: Time.now.to_i,
-                   user: 'null', project: 'null', commit: 'null')
+          msg = full_msg
         end
+
+        save_env(env, msg: msg,
+                 environment: env, timestamp: Time.now.to_i,
+                 user: user, project: proj, commit: commit)
+
       end
 
       def env_claimer(env)
