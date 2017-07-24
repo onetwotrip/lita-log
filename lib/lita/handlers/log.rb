@@ -92,7 +92,7 @@ module Lita
         env      = 'null'
         proj     = 'null'
 
-        if /by\s+(?<user>\S+)\s+Stage:\s+(?<env>\S+)\s+Projects:\s+(?<proj>\S+)\s+Branch:\s+(?<commit>\S+)/ =~ full_msg
+        if /by\s+(?<user>\S+)\s+Stage:\s+(?<env>\S+)\s+Projects:\s+(?<proj>.*)\s+Branch:\s+(?<commit>.*)/ =~ full_msg
 
           user.delete!('*')
           commit.delete!('*').delete!('[').delete!(']')
