@@ -1,5 +1,4 @@
 require 'lita'
-require 'claim'
 require 'elasticsearch'
 require 'es'
 
