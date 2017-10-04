@@ -9,7 +9,6 @@ module Lita
       attr_accessor :ops_log
 
       http.get '/:env/current', :env_current
-      # http.get '/', :all_current
 
       route(
         /Finished deploying/,
@@ -31,35 +30,18 @@ module Lita
 
       def initialize(robot)
         super
-        # self.data = {}
         check_dir
-        # load_data
-        # load_ops_log
       end
 
       def check_dir
         Dir.mkdir(config.data_dir) unless Dir.exist?(config.data_dir)
       end
 
-      # def load_data
-      #   Dir.foreach(config.data_dir) do |file|
-      #     next unless file =~ /.json/
-      #     next if file =~ /ops_log/
-      #     env = file.chomp('.json')
-      #     self.data[env] = JSON.parse(IO.read("#{config.data_dir}/#{file}", encoding: 'utf-8')) if File.exist?("#{config.data_dir}/#{file}")
-      #   end
-      # end
-
-      # def load_ops_log
-      #   return unless File.exist?("#{config.data_dir}/ops_log.json")
-      #   self.ops_log = JSON.parse(IO.read("#{config.data_dir}/ops_log.json", encoding: 'utf-8'))
-      # end
-
       def read_data(env)
         filename = "#{config.data_dir}/#{env}.json"
 
         if File.exist?(filename)
-          IO.read(filename, encoding: 'utf-8').split("\n").to_json
+          IO.read(filename, encoding: 'utf-8').split("\n")
         else
           return "Can't find file #{filename}"
         end
@@ -107,32 +89,16 @@ module Lita
           msg = full_msg
         end
 
-        save_env(env, msg: msg,
-                 environment: env, timestamp: Time.now.to_i,
-                 user: user, project: proj, commit: commit)
-
+        save_env(
+          env,
+          msg: msg,
+          environment: env,
+          timestamp: Time.now.to_i,
+          user: user,
+          project: proj,
+          commit: commit
+        )
       end
-
-      # If delete this need also delete ../claim.rb
-      # CHECK IT!!!
-      # def env_claimer(env)
-      #   Claim.read(env)
-      # end
-
-      # def env_latest(env)
-      #   last_env = self.data[env].last
-      #   last_env['claimer'] = env_claimer(env)
-      #   last_env
-      # end
-
-      # def all_current(request, response)
-      #   all = {}
-      #   self.data.each_key do |env|
-      #     all[env] = env_latest(env)
-      #   end
-      #   html = render_template('index', variables: { envs: all, ops_log: self.ops_log })
-      #   response.body << html
-      # end
 
       def env_current(request, response)
         env  = request.env['router.params'][:env]
