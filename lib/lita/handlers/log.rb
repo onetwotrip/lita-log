@@ -5,11 +5,6 @@ module Lita
       config :channel, default: nil
       config :env_list, default: ['production']
 
-      attr_accessor :data
-      attr_accessor :ops_log
-
-      http.get '/:env/current', :env_current
-
       route(
         /Finished deploying/,
         :add_log,
@@ -35,16 +30,6 @@ module Lita
 
       def check_dir
         Dir.mkdir(config.data_dir) unless Dir.exist?(config.data_dir)
-      end
-
-      def read_data(env)
-        filename = "#{config.data_dir}/#{env}.json"
-
-        if File.exist?(filename)
-          IO.read(filename, encoding: 'utf-8').split("\n")
-        else
-          return "Can't find file #{filename}"
-        end
       end
 
       def save_data(env, hash)
@@ -98,12 +83,6 @@ module Lita
           project: proj,
           commit: commit
         )
-      end
-
-      def env_current(request, response)
-        env  = request.env['router.params'][:env]
-        html = render_template('env', variables: { env => read_data(env) })
-        response.body << html
       end
     end
     Lita.register_handler(Log)
