@@ -67,7 +67,7 @@ module Lita
           user.delete!('*')
           commit.delete!('*').delete!('[').delete!(']')
           env.delete!('*')
-          proj.strip!.delete!('*').delete!('[').delete!(']').downcase
+          proj.strip.delete!('*').delete!('[').delete!(']').downcase
 
           msg = "#{user}, #{proj} (#{commit}) to #{env}"
         else
