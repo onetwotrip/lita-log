@@ -64,10 +64,10 @@ module Lita
 
         if /by\s+(?<user>\S+)\s+Stage:\s+(?<env>\S+)\s+Projects:\s+(?<proj>.*)\s+Branch:\s+(?<commit>.*)/ =~ full_msg
 
-          user.delete!('*')
-          commit.delete!('*').delete!('[').delete!(']')
-          env.delete!('*')
-          proj.strip.delete!('*').delete!('[').delete!(']').downcase
+          user   = user.delete('*')
+          commit = commit.delete('*').delete('[').delete(']')
+          env    = env.delete('*')
+          proj   = proj.strip.delete('*').delete('[').delete(']').downcase
 
           msg = "#{user}, #{proj} (#{commit}) to #{env}"
         else
