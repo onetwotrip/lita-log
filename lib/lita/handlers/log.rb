@@ -15,18 +15,18 @@ module Lita
         user    = response.user.name
 
         if message.size == 1
-          ES.put({ user: user, message: message.last }, 'shared')
+          ES.put({ user: user, message: message.last, tags: [user, 'shared']})
 
           response.reply("#{user}, ok saved to shared log")
         elsif message.size == 3
           message = message[1..-1]
 
           if message.first.start_with?('_')
-            ES.put({ user: user, message: message.last }, message.first.delete('_'))
+            ES.put({ user: user, message: message.last, tags: [user, message.first.delete('_')]})
 
             response.reply("#{user}, ok saved to #{message.first} log")
           else
-            ES.put({ user: user, message: message.join(' ') }, 'shared')
+            ES.put({ user: user, message: message.join(' '), tags: [user, 'shared']})
 
             response.reply("#{user}, ok saved to shared log")
           end
@@ -50,15 +50,14 @@ module Lita
           msg = full_msg
         end
 
-        data = {
+        ES.put({
           message:     msg,
           environment: env,
           user:        user,
           project:     proj,
-          commit:      commit
-        }
-
-        ES.put(data, 'deploy')
+          commit:      commit,
+          tags:        [user, 'deploy']
+        })
       end
     end
 
