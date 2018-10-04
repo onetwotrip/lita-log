@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-log"
-  spec.version       = "0.4.0"
+  spec.version       = "0.4.1"
   spec.authors       = ["Tony Nyurkin", "Dima Medvedev", "Antony Ryabov"]
   spec.email         = ["ptqa.mail@gmail.com, mail@doam.ru"]
   spec.summary       = "Twiket related log handler"

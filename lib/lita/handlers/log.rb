@@ -17,18 +17,18 @@ module Lita
         if message.size == 1
           ES.put({ user: user, message: message.last, tags: [user, 'shared']})
 
-          response.reply("#{user}, ok saved to shared log")
+          response.reply("#{user}, ok saved to log with tag shared")
         elsif message.size == 3
           message = message[1..-1]
 
           if message.first.start_with?('_')
             ES.put({ user: user, message: message.last, tags: [user, message.first.delete('_')]})
 
-            response.reply("#{user}, ok saved to #{message.first} log")
+            response.reply("#{user}, ok saved to log with tag #{message.first.delete('_')}")
           else
             ES.put({ user: user, message: message.join(' '), tags: [user, 'shared']})
 
-            response.reply("#{user}, ok saved to shared log")
+            response.reply("#{user}, ok saved to log with tag shared")
           end
         else
           response.reply("#{user}, sorry, something went wrong")
