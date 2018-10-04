@@ -1,69 +1,45 @@
 module Lita
   module Handlers
     class Log < Handler
-      config :data_dir, default: '/opt/lita/data'
-      config :channel, default: nil
-      config :env_list, default: ['production']
+      route(/Finished deploying/, :log_deploy, command: false, help: {
+        'Finished deploying something to env' => 'Lita add it to log'
+      })
 
-      route(
-        /Finished deploying/,
-        :add_log,
-        command: false,
-        help: {
-          'Finished deploying something to env' => 'Lita add it to log'
-        }
-      )
+      route(/^log(\s+(\S+))?\s+(.*)$/i, :log_message, command: true, help: {
+        'log some text'            => 'Save "some text" to index lita with tag shared',
+        'log _<project> some text' => 'Save "some text" to index lita with tag <project>',
+      })
 
-      route(
-        %r{^log\s.*$}i,
-        :add_ops_log,
-        command: true,
-        help: {
-          'log' => 'Add message to lita'
-        }
-      )
+      def log_message(response)
+        message = response.matches.first.compact
+        user    = response.user.name
 
-      def initialize(robot)
-        super
-        check_dir
+        if message.size == 1
+          ES.put({ user: user, message: message.last }, 'shared')
+
+          response.reply("#{user}, ok saved to shared log")
+        elsif message.size == 3
+          message = message[1..-1]
+
+          if message.first.start_with?('_')
+            ES.put({ user: user, message: message.last }, message.first.delete('_'))
+
+            response.reply("#{user}, ok saved to #{message.first} log")
+          else
+            ES.put({ user: user, message: message.join(' ') }, 'shared')
+
+            response.reply("#{user}, ok saved to shared log")
+          end
+        else
+          response.reply("#{user}, sorry, something went wrong")
+        end
       end
 
-      def check_dir
-        Dir.mkdir(config.data_dir) unless Dir.exist?(config.data_dir)
-      end
-
-      def save_data(env, hash)
-        filename = "#{config.data_dir}/#{env}.json"
-        File.open(filename, "a+") { |f| f << "#{hash.to_json}\n" }
-      end
-
-      def save_ops_log(hash)
-        save_data('ops_log', hash)
-        ES.put(hash, 'ops_log')
-      end
-
-      def save_env(env, hash)
-        save_data(env, hash)
-        ES.put(hash, 'deploy')
-      end
-
-      def add_ops_log(response)
-        cut = response.message.body.size - 4
-        msg = response.message.body[-cut..-1]
-        response.reply("#{response.user.name}, ok saved to log.")
-        save_ops_log(timestamp: Time.now.to_i, user: response.user.name, msg: msg)
-      end
-
-      def add_log(response)
-
-        full_msg = response.message.body
-        user     = 'null'
-        commit   = 'null'
-        env      = 'null'
-        proj     = 'null'
+      def log_deploy(response)
+        full_msg                = response.message.body
+        user, commit, env, proj = 'null', 'null', 'null', 'null'
 
         if /by\s+(?<user>\S+)\s+Stage:\s+(?<env>\S+)\s+Projects:\s+(?<proj>.*)\s+Branch:\s+(?<commit>.*)/ =~ full_msg
-
           user   = user.delete('*')
           commit = commit.delete('*').delete('[').delete(']')
           env    = env.delete('*')
@@ -74,17 +50,18 @@ module Lita
           msg = full_msg
         end
 
-        save_env(
-          env,
-          msg: msg,
+        data = {
+          message:     msg,
           environment: env,
-          timestamp: Time.now.to_i,
-          user: user,
-          project: proj,
-          commit: commit
-        )
+          user:        user,
+          project:     proj,
+          commit:      commit
+        }
+
+        ES.put(data, 'deploy')
       end
     end
+
     Lita.register_handler(Log)
   end
 end
