@@ -14,10 +14,10 @@ class ES
       'lita-' + (Time.now.strftime '%Y.%m.%d')
     end
 
-    def put(msg, tags)
+    def put(msg, tag)
       msg[:@timestamp] = timestamp
-      msg[:tags] = tags
-      msg = {
+      msg[:tag]        = tag
+      msg              = {
         index: index_name,
         type: type_name,
         body: msg
